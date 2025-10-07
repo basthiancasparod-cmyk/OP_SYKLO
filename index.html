@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Syklo Ops Dashboard v4.1 (Corregido)</title>
+    <title>Syklo Ops Dashboard v4.2 (Mobile First)</title>
     <style>
         :root {
             --bg-primary: #0f172a;      /* Azul oscuro más moderno */
@@ -34,7 +34,7 @@
             font-family: var(--font-family);
             background-color: var(--bg-primary);
             color: var(--text-primary);
-            overflow: hidden;
+            overflow: hidden; /* Oculta el scroll en escritorio para el layout de app */
             line-height: 1.5;
         }
 
@@ -44,7 +44,7 @@
             height: 100vh;
         }
 
-        /* Header mejorado */
+        /* Header */
         #app-header {
             display: flex;
             align-items: center;
@@ -54,349 +54,152 @@
             border-bottom: 1px solid var(--border-color);
             flex-shrink: 0;
             box-shadow: var(--shadow);
+            position: sticky; /* Se mantiene visible en móvil */
+            top: 0;
+            z-index: 1000;
         }
         .logo {
             font-size: 18px;
             font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
-        .logo::before {
-            content: "⚡";
-            font-size: 20px;
-        }
-        .header-controls button {
-            background-color: var(--accent-primary);
-            color: white;
-            border: none;
-            padding: 10px 18px;
-            font-size: 14px;
-            font-weight: 600;
-            border-radius: var(--radius);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: var(--transition);
-            box-shadow: var(--shadow);
-        }
-        .header-controls button:hover {
-            background-color: var(--accent-primary-hover);
-            transform: translateY(-1px);
-        }
+        .logo::before { content: "⚡"; font-size: 20px; margin-right: 8px; }
 
-        /* Navegación por pestañas mejorada */
+        .header-controls button {
+            background-color: var(--accent-primary); color: white; border: none; padding: 10px 18px;
+            font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer;
+            display: flex; align-items: center; gap: 8px; transition: var(--transition); box-shadow: var(--shadow);
+        }
+        .header-controls button:hover { background-color: var(--accent-primary-hover); transform: translateY(-1px); }
+
+        /* Navegación */
         #tab-nav {
-            display: flex;
-            background-color: var(--bg-secondary);
-            flex-shrink: 0;
-            border-bottom: 1px solid var(--border-color);
-            padding: 0 20px;
-            gap: 8px;
+            display: flex; background-color: var(--bg-secondary); flex-shrink: 0;
+            border-bottom: 1px solid var(--border-color); padding: 0 20px; gap: 8px;
+            position: sticky; /* Se mantiene visible en móvil */
+            top: 60.5px; /* Altura del header */
+            z-index: 1000;
         }
         .tab-btn {
-            padding: 12px 20px;
-            font-size: 14px;
-            font-weight: 500;
-            background-color: transparent;
-            border: none;
-            border-bottom: 3px solid transparent;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: var(--transition);
-            border-radius: var(--radius) var(--radius) 0 0;
+            padding: 12px 20px; font-size: 14px; font-weight: 500; background-color: transparent; border: none;
+            border-bottom: 3px solid transparent; color: var(--text-secondary); cursor: pointer;
+            transition: var(--transition); border-radius: var(--radius) var(--radius) 0 0;
         }
-        .tab-btn:hover {
-            background-color: var(--bg-tertiary);
-            color: var(--text-primary);
-        }
-        .tab-btn.active {
-            color: var(--accent-primary);
-            border-bottom-color: var(--accent-primary);
-            background-color: rgba(59, 130, 246, 0.1);
-        }
+        .tab-btn:hover { background-color: var(--bg-tertiary); color: var(--text-primary); }
+        .tab-btn.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); background-color: rgba(59, 130, 246, 0.1); }
 
         /* Contenido principal */
         #content-container {
             flex-grow: 1;
             position: relative;
-            overflow: hidden;
+            overflow: hidden; /* Contiene los paneles con position: absolute */
         }
         .tab-panel {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0; visibility: hidden; transition: opacity 0.3s ease;
             overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
+            -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
         }
-        .tab-panel.active {
-            opacity: 1;
-            visibility: visible;
-        }
-        .panel-grid {
-            display: grid;
-            gap: 16px;
-            padding: 16px;
-            align-content: flex-start;
-        }
+        .tab-panel.active { opacity: 1; visibility: visible; }
+        .panel-grid { display: grid; gap: 16px; padding: 16px; align-content: flex-start; }
+        .panel-grid.single-panel-mode { padding: 16px; gap: 0; }
 
-        .panel-grid.single-panel-mode {
-            padding: 16px;
-            gap: 0;
-        }
-
-        /* Tarjetas de panel mejoradas */
+        /* Tarjetas */
         .grid-panel {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            display: flex;
-            flex-direction: column;
-            min-height: 350px;
-            animation: fadeIn 0.4s ease;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-            /* --- ✨ NUEVO: AÑADIDO PARA REDIMENSIONAR MANUALMENTE --- */
+            background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius);
+            display: flex; flex-direction: column; min-height: 350px; animation: fadeIn 0.4s ease;
+            box-shadow: var(--shadow); transition: var(--transition);
             resize: both;
             overflow: auto;
         }
-        .grid-panel:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-        .grid-panel.pinned {
-            border-left: 4px solid var(--accent-pin);
-        }
+        .grid-panel:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        .grid-panel.pinned { border-left: 4px solid var(--accent-pin); }
 
-        /* Encabezado de panel mejorado */
-        .panel-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border-color);
-            background-color: rgba(0,0,0,0.1);
-            border-radius: var(--radius) var(--radius) 0 0;
-        }
-        .panel-title {
-            font-weight: 600;
-            font-size: 14px;
-            flex-grow: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .panel-controls {
-            display: flex;
-            gap: 4px;
-        }
+        /* Header de Tarjetas */
+        .panel-header { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--border-color); background-color: rgba(0,0,0,0.1); }
+        .panel-title { font-weight: 600; font-size: 14px; flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .panel-controls { display: flex; gap: 4px; }
         .panel-controls button {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 4px;
-            transition: var(--transition);
+            background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 6px;
+            display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: var(--transition);
         }
-        .panel-controls button:hover {
-            background-color: var(--bg-tertiary);
-            color: var(--text-primary);
-        }
-        .panel-controls button.close-btn:hover {
-            background-color: var(--accent-danger);
-            color: white;
-        }
-        .panel-controls button.pin-btn.active {
-            color: var(--accent-pin);
-        }
+        .panel-controls button:hover { background-color: var(--bg-tertiary); color: var(--text-primary); }
+        .panel-controls button.close-btn:hover { background-color: var(--accent-danger); color: white; }
+        .panel-controls button.pin-btn.active { color: var(--accent-pin); }
 
-        .panel-content {
-            flex-grow: 1;
-            overflow: hidden;
-            border-radius: 0 0 var(--radius) var(--radius);
-        }
-        .panel-content iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            border-radius: 0 0 var(--radius) var(--radius);
-        }
+        .panel-content { flex-grow: 1; overflow: hidden; }
+        .panel-content iframe { width: 100%; height: 100%; border: none; }
+        #tab-panel-global { padding: 0; }
+        
+        /* Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 1001; animation: fadeIn 0.2s ease; backdrop-filter: blur(2px); }
+        .modal { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius); width: 90%; max-width: 500px; padding: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); animation: slideUp 0.3s ease; }
+        .modal h3 { margin: 0 0 20px 0; font-size: 18px; font-weight: 600; }
+        .modal select { width: 100%; padding: 12px; margin-bottom: 24px; background-color: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius); color: var(--text-primary); font-size: 14px; }
+        .modal select:focus { outline: none; border-color: var(--accent-primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+        .modal-buttons { display: flex; gap: 12px; justify-content: flex-end; }
+        .modal-btn { padding: 10px 20px; font-size: 14px; font-weight: 600; border-radius: var(--radius); border: none; cursor: pointer; transition: var(--transition); }
+        .modal-btn.primary { background-color: var(--accent-primary); color: white; }
+        .modal-btn.primary:hover { background-color: var(--accent-primary-hover); }
+        .modal-btn.secondary { background-color: var(--bg-tertiary); color: var(--text-primary); }
+        .modal-btn.secondary:hover { background-color: #475569; }
 
-        #tab-panel-global {
-            padding: 0;
-        }
-        #tab-panel-global iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
+        /* Estados Vacíos */
+        .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 40px; text-align: center; color: var(--text-secondary); }
+        .empty-state svg { margin-bottom: 16px; opacity: 0.5; }
+        .empty-state p { margin-bottom: 16px; max-width: 300px; }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Modal mejorado */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1001;
-            animation: fadeIn 0.2s ease;
-            backdrop-filter: blur(2px);
-        }
-        .modal {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            width: 90%;
-            max-width: 500px;
-            padding: 24px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            animation: slideUp 0.3s ease;
-        }
-        .modal h3 {
-            margin: 0 0 20px 0;
-            font-size: 18px;
-            font-weight: 600;
-        }
-        .modal select {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 24px;
-            background-color: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            color: var(--text-primary);
-            font-size: 14px;
-            transition: var(--transition);
-        }
-        .modal select:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-        }
-        .modal-buttons {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-        }
-        .modal-btn {
-            padding: 10px 20px;
-            font-size: 14px;
-            font-weight: 600;
-            border-radius: var(--radius);
-            border: none;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        .modal-btn.primary {
-            background-color: var(--accent-primary);
-            color: white;
-        }
-        .modal-btn.primary:hover {
-            background-color: var(--accent-primary-hover);
-        }
-        .modal-btn.secondary {
-            background-color: var(--bg-tertiary);
-            color: var(--text-primary);
-        }
-        .modal-btn.secondary:hover {
-            background-color: #475569;
-        }
-
-        /* Estados vacíos */
-        .empty-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            padding: 40px;
-            text-align: center;
-            color: var(--text-secondary);
-        }
-        .empty-state svg {
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
-        .empty-state p {
-            margin-bottom: 16px;
-            max-width: 300px;
-        }
-
-        /* Animaciones */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Responsive mejorado */
+        /* --- ✨ SECCIÓN RESPONSIVE MEJORADA PARA MÓVILES ✨ --- */
         @media (max-width: 768px) {
+            body {
+                overflow: auto; /* Permite que el cuerpo de la página haga scroll */
+            }
+            #app-container {
+                height: auto; /* La altura del contenedor principal se adapta a su contenido */
+            }
+            #content-container {
+                height: auto; /* La altura del contenedor del contenido se adapta */
+                overflow: visible; /* Ya no necesita ocultar ni gestionar el scroll */
+            }
+            .tab-panel {
+                position: relative; /* Quita el posicionamiento absoluto */
+                height: auto;
+                display: none; /* Se ocultan por defecto */
+                opacity: 1; /* Resetea las propiedades de la transición de escritorio */
+                visibility: visible;
+            }
+            .tab-panel.active {
+                display: block; /* El panel activo se muestra como un bloque */
+            }
             .panel-grid {
                 grid-template-columns: 1fr !important;
-                /* grid-template-rows: auto !important; */ /* Ya no es necesario */
                 height: auto;
                 gap: 12px;
                 padding: 12px;
             }
-
+            .grid-panel {
+                resize: none; /* Desactiva la función de redimensionar en móviles */
+                min-height: 400px; /* Un poco más de altura mínima en móvil */
+            }
             #tab-nav {
                 padding: 0 12px;
                 overflow-x: auto;
                 white-space: nowrap;
             }
-
-            .tab-btn {
-                padding: 10px 16px;
-                font-size: 13px;
-            }
-
-            #app-header {
-                padding: 10px 12px;
-            }
-
-            .header-controls button span {
-                display: none;
-            }
-
-            .header-controls button {
-                padding: 10px;
-            }
-
-            .modal {
-                width: 95%;
-                padding: 20px;
-            }
+            .tab-btn { padding: 10px 16px; font-size: 13px; }
+            #app-header { padding: 10px 12px; }
+            .header-controls button span { display: none; }
+            .header-controls button { padding: 10px; }
+            .modal { width: 95%; padding: 20px; }
         }
     </style>
 </head>
 <body>
     <div id="app-container">
         <header id="app-header">
-            <div class="logo">Syklo Ops v4.1</div>
+            <div class="logo">Syklo Ops v4.2</div>
             <div class="header-controls">
                 <button id="add-panel-btn">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
@@ -414,21 +217,13 @@
         <main id="content-container">
             <div id="tab-panel-ves" class="tab-panel active panel-grid">
                 <div class="empty-state" id="ves-empty-state">
-                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="3" y1="9" x2="21" y2="9"></line>
-                        <line x1="9" y1="21" x2="9" y2="9"></line>
-                    </svg>
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
                     <p>No hay paneles de VES configurados. Haz clic en "Agregar Panel" para comenzar.</p>
                 </div>
             </div>
             <div id="tab-panel-cripto" class="tab-panel panel-grid">
                 <div class="empty-state" id="cripto-empty-state">
-                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="3" y1="9" x2="21" y2="9"></line>
-                        <line x1="9" y1="21" x2="9" y2="9"></line>
-                    </svg>
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
                     <p>No hay paneles de CRIPTO/USD configurados. Haz clic en "Agregar Panel" para comenzar.</p>
                 </div>
             </div>
@@ -472,14 +267,12 @@
         const tabPanels = document.querySelectorAll('.tab-panel');
         const vesGrid = document.getElementById('tab-panel-ves');
         const criptoGrid = document.getElementById('tab-panel-cripto');
-        const vesEmptyState = document.getElementById('ves-empty-state');
-        const criptoEmptyState = document.getElementById('cripto-empty-state');
         const modalOverlay = document.getElementById('modal-overlay');
         const addPanelBtn = document.getElementById('add-panel-btn');
         const cancelBtn = document.getElementById('cancelar-btn');
         const okBtn = document.getElementById('ok-btn');
         const panelOpcionSelect = document.getElementById('panel-opcion');
-
+        
         const STORAGE_KEY = 'sykloDashboardPanels_v4';
 
         const ICONS = {
@@ -494,9 +287,12 @@
         // Navegación por pestañas
         tabButtons.forEach(button => {
             button.addEventListener('click', () => {
+                const targetTab = button.dataset.tab;
                 tabButtons.forEach(btn => btn.classList.remove('active'));
                 button.classList.add('active');
-                const targetTab = button.dataset.tab;
+                
+                // En móvil, la lógica de mostrar/ocultar es por `display`. En escritorio, por `opacity`.
+                // La clase 'active' manejará ambos casos gracias al CSS.
                 tabPanels.forEach(panel => {
                     panel.classList.toggle('active', panel.id === `tab-panel-${targetTab}`);
                 });
@@ -505,79 +301,54 @@
 
         // Actualizar diseño de la cuadrícula
         const updateGridLayout = (grid) => {
-            // Se cuenta el número de paneles reales, excluyendo el 'empty-state'
             const count = grid.querySelectorAll('.grid-panel').length;
-
-            // Ocultar/mostrar estado vacío
-            const hasEmptyState = grid.querySelector('.empty-state');
-            if (hasEmptyState) {
-                hasEmptyState.style.display = count === 0 ? 'flex' : 'none';
+            
+            const emptyState = grid.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.style.display = count === 0 ? 'flex' : 'none';
             }
-
+            
             grid.classList.toggle('single-panel-mode', count === 1);
-
-            if (window.innerWidth <= 768) {
+            
+            if (window.innerWidth > 768) {
+                switch (count) {
+                    case 1: grid.style.gridTemplateColumns = '1fr'; break;
+                    case 2: grid.style.gridTemplateColumns = '1fr 1fr'; break;
+                    case 3: grid.style.gridTemplateColumns = '1fr 1fr 1fr'; break;
+                    case 4: grid.style.gridTemplateColumns = '1fr 1fr'; break;
+                    default: grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(400px, 1fr))'; break;
+                }
+            } else {
                 grid.style.gridTemplateColumns = '1fr';
-                // --- 🗑️ ELIMINADO: Se quita la manipulación de grid-template-rows ---
-                // grid.style.gridTemplateRows = '';
-                return;
             }
-
-            // --- 💡 LÓGICA SIMPLIFICADA: Solo ajustamos columnas. Las filas son automáticas. ---
-            switch (count) {
-                case 1:
-                    grid.style.gridTemplateColumns = '1fr';
-                    break;
-                case 2:
-                    grid.style.gridTemplateColumns = '1fr 1fr';
-                    break;
-                case 3:
-                    grid.style.gridTemplateColumns = '1fr 1fr 1fr';
-                    break;
-                case 4:
-                    grid.style.gridTemplateColumns = '1fr 1fr';
-                    break;
-                case 5:
-                case 6:
-                    grid.style.gridTemplateColumns = '1fr 1fr 1fr';
-                    break;
-                default:
-                    grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(300px, 1fr))';
-            }
-             // --- 🗑️ ELIMINADO: Toda la lógica que establecía grid.style.gridTemplateRows fue removida ---
         };
-
 
         // Renderizar todos los paneles
         const renderAllPanels = () => {
-            // Guardamos los elementos de estado vacío
-            const vesEmptyStateNode = vesGrid.querySelector('.empty-state');
-            const criptoEmptyStateNode = criptoGrid.querySelector('.empty-state');
+            const vesEmptyState = document.getElementById('ves-empty-state');
+            const criptoEmptyState = document.getElementById('cripto-empty-state');
 
-            vesGrid.innerHTML = '';
-            criptoGrid.innerHTML = '';
-
-            // Volvemos a añadir los estados vacíos
-            if(vesEmptyStateNode) vesGrid.appendChild(vesEmptyStateNode);
-            if(criptoEmptyStateNode) criptoGrid.appendChild(criptoEmptyStateNode);
-
+            // Limpia los paneles existentes antes de volver a renderizar
+            vesGrid.querySelectorAll('.grid-panel').forEach(p => p.remove());
+            criptoGrid.querySelectorAll('.grid-panel').forEach(p => p.remove());
+            
             const vesPanels = allPanels.filter(p => p.category === 'VES').sort((a, b) => b.pinned - a.pinned);
             const criptoPanels = allPanels.filter(p => p.category === 'CRIPTO').sort((a, b) => b.pinned - a.pinned);
 
             vesPanels.forEach(panel => createPanelElement(panel, vesGrid));
             criptoPanels.forEach(panel => createPanelElement(panel, criptoGrid));
-
+            
             updateGridLayout(vesGrid);
             updateGridLayout(criptoGrid);
         };
-
+        
         // Crear elemento de panel
         const createPanelElement = (panel, container) => {
             const panelEl = document.createElement('div');
             panelEl.className = 'grid-panel';
             panelEl.dataset.id = panel.id;
             if (panel.pinned) panelEl.classList.add('pinned');
-
+            
             panelEl.innerHTML = `
                 <div class="panel-header">
                     <span class="panel-title">${panel.title}</span>
@@ -593,38 +364,24 @@
                 </div>
             `;
             
-            // Insertar antes del elemento de estado vacío si existe
             const emptyState = container.querySelector('.empty-state');
-            if(emptyState){
-                container.insertBefore(panelEl, emptyState);
-            } else {
-                container.appendChild(panelEl);
-            }
+            container.insertBefore(panelEl, emptyState);
 
             const id = panel.id;
-
-            // Añadir event listeners
             panelEl.querySelector('.close-btn').addEventListener('click', () => removePanel(id));
             panelEl.querySelector('.refresh-btn').addEventListener('click', () => refreshPanel(id));
             panelEl.querySelector('.edit-btn').addEventListener('click', () => editPanelTitle(id));
             panelEl.querySelector('.pin-btn').addEventListener('click', () => togglePinPanel(id));
         };
 
-        // Añadir panel
+        // Añadir, eliminar, etc... (sin cambios en estas funciones)
         const addPanel = (title, url, category) => {
-            const newPanel = {
-                id: `panel-${Date.now()}`,
-                title,
-                url,
-                category,
-                pinned: false
-            };
+            const newPanel = { id: `panel-${Date.now()}`, title, url, category, pinned: false };
             allPanels.push(newPanel);
             saveState();
             renderAllPanels();
         };
 
-        // Eliminar panel
         const removePanel = (id) => {
             if (confirm('¿Estás seguro de que quieres eliminar este panel?')) {
                 allPanels = allPanels.filter(p => p.id !== id);
@@ -633,22 +390,11 @@
             }
         };
 
-        // Actualizar panel
         const refreshPanel = (id) => {
-            const panelEl = document.querySelector(`.grid-panel[data-id="${id}"]`);
-            const iframe = panelEl.querySelector('iframe');
-            if (!iframe) return;
-
-            // Mostrar indicador de carga
-            const originalSrc = iframe.src;
-            iframe.src = 'about:blank';
-
-            setTimeout(() => {
-                iframe.src = originalSrc;
-            }, 100);
+            const iframe = document.querySelector(`.grid-panel[data-id="${id}"] iframe`);
+            if (iframe) iframe.src = iframe.src;
         };
-
-        // Editar título del panel
+        
         const editPanelTitle = (id) => {
             const panel = allPanels.find(p => p.id === id);
             const newTitle = prompt('Introduce el nuevo nombre para el panel:', panel.title);
@@ -659,7 +405,6 @@
             }
         };
 
-        // Fijar/desfijar panel
         const togglePinPanel = (id) => {
             const panel = allPanels.find(p => p.id === id);
             panel.pinned = !panel.pinned;
@@ -667,50 +412,32 @@
             renderAllPanels();
         };
 
-        // Guardar estado
         const saveState = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(allPanels));
-
-        // Cargar estado
+        
         const loadState = () => {
             const savedState = localStorage.getItem(STORAGE_KEY);
             allPanels = savedState ? JSON.parse(savedState) : [];
             renderAllPanels();
         };
 
-        // Mostrar/ocultar modal
-        const showModal = () => {
-            modalOverlay.style.display = 'flex';
-            panelOpcionSelect.selectedIndex = 0; // Resetear selección
-        };
-
-        const hideModal = () => {
-            modalOverlay.style.display = 'none';
-        };
-
-        // Event listeners
+        // Modal (sin cambios)
+        const showModal = () => { modalOverlay.style.display = 'flex'; panelOpcionSelect.selectedIndex = 0; };
+        const hideModal = () => { modalOverlay.style.display = 'none'; };
         addPanelBtn.addEventListener('click', showModal);
         cancelBtn.addEventListener('click', hideModal);
-        modalOverlay.addEventListener('click', (e) => {
-            if (e.target === modalOverlay) hideModal();
-        });
-
+        modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) hideModal(); });
         okBtn.addEventListener('click', () => {
             const selected = panelOpcionSelect.options[panelOpcionSelect.selectedIndex];
-            if (!selected || !selected.dataset.url) {
-                alert('Por favor, selecciona un servicio.');
-                return;
-            }
+            if (!selected || !selected.dataset.url) return alert('Por favor, selecciona un servicio.');
             addPanel(selected.text, selected.dataset.url, selected.dataset.category);
             hideModal();
         });
-
-        // Manejar redimensionamiento de ventana
+        
         window.addEventListener('resize', () => {
             updateGridLayout(vesGrid);
             updateGridLayout(criptoGrid);
         });
 
-        // Inicializar
         loadState();
     });
     </script>
