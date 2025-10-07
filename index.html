@@ -3,225 +3,248 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Syklo Ops Dashboard v5.0 (Táctil)</title>
-    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+    <title>Syklo Ops Dashboard v6.0 (Estable)</title>
     <style>
         :root {
-            --bg-primary: #0f172a; --bg-secondary: #1e293b; --bg-tertiary: #334155;
-            --bg-card: #1e293b; --border-color: #334155; --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8; --accent-primary: #3b82f6; --accent-primary-hover: #2563eb;
-            --accent-danger: #ef4444; --accent-pin: #f59e0b; --radius: 8px;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --transition: all 0.2s ease-in-out;
+            --bg-primary: #0f172a; --bg-secondary: #1e293b; --bg-card: #1e293b;
+            --border-color: #334155; --text-primary: #f1f5f9; --text-secondary: #94a3b8;
+            --accent-primary: #3b82f6; --accent-danger: #ef4444; --accent-pin: #f59e0b;
+            --radius: 8px; --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
         }
-        html, body {
-            overscroll-behavior: none; /* Evita el "pull-to-refresh" */
+
+        /* --- ESTRATEGIA 1: CONFIGURACIÓN PARA SCROLL NATIVO --- */
+        html {
+            scroll-behavior: smooth;
         }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: var(--bg-primary); color: var(--text-primary);
-            overflow: hidden; height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        #app-container { display: flex; flex-direction: column; height: 100%; }
-        
-        /* Header y Navegación (sin cambios mayores) */
-        #app-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background-color: var(--bg-secondary); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
-        .logo { font-size: 18px; font-weight: 700; }
-        #tab-nav { display: flex; background-color: var(--bg-secondary); flex-shrink: 0; border-bottom: 1px solid var(--border-color); padding: 0 10px; overflow-x: auto; }
-        .tab-btn { padding: 12px 16px; font-size: 14px; font-weight: 500; background: transparent; border: none; border-bottom: 3px solid transparent; color: var(--text-secondary); cursor: pointer; transition: var(--transition); white-space: nowrap; }
-        .tab-btn.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
-
-        /* ✨ ESTRATEGIA 2: Estructura de Scroll robusta */
-        #content-container { flex-grow: 1; position: relative; overflow: hidden; }
-        .tab-panel {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: none; /* Se cambia de opacity a display para mejor rendimiento */
-            overflow-y: auto; /* Habilita el scroll vertical */
-            -webkit-overflow-scrolling: touch; /* Scroll suave en móviles */
+        /* Clase para bloquear el scroll del body cuando un panel está maximizado */
+        body.panel-maximized-mode {
+            overflow: hidden;
         }
-        .tab-panel.active { display: block; }
-        .panel-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 16px; padding: 16px; }
 
-        /* Paneles */
-        .grid-panel {
-            background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius);
-            display: flex; flex-direction: column; min-height: 350px; min-width: 320px;
+        #app-container {
+            width: 100%;
+        }
+
+        /* --- Cabecera y Navegación Fijas (Sticky) --- */
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background-color: var(--bg-secondary);
             box-shadow: var(--shadow);
-            touch-action: none; /* Requerido por Interact.js para evitar conflictos */
-            position: relative; /* Para posicionar el tirador de redimensionamiento */
         }
-        .panel-header { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--border-color); background-color: rgba(0,0,0,0.1); cursor: move; }
-        .panel-title { font-weight: 600; flex-grow: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
+        #app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        #tab-nav {
+            display: flex;
+            padding: 0 10px;
+            overflow-x: auto;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .tab-btn {
+            padding: 12px 16px; font-size: 14px; font-weight: 500; background: transparent;
+            border: none; border-bottom: 3px solid transparent; color: var(--text-secondary);
+            cursor: pointer; white-space: nowrap; flex-shrink: 0;
+        }
+        .tab-btn.active {
+            color: var(--accent-primary);
+            border-bottom-color: var(--accent-primary);
+        }
+
+        /* --- Contenido y Paneles --- */
+        #content-container {
+            padding: 16px;
+        }
+        .tab-panel {
+            display: none; /* Ocultar paneles inactivos */
+        }
+        .tab-panel.active {
+            display: grid; /* Mostrar panel activo como grid */
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 16px;
+        }
+        .grid-panel {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            display: flex;
+            flex-direction: column;
+            min-height: 400px;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .grid-panel:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
+        }
+
+        .panel-header {
+            display: flex; align-items: center; gap: 8px;
+            padding: 12px 16px; border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+        .panel-title { font-weight: 600; flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .panel-controls { display: flex; gap: 4px; }
-        .panel-controls button { background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 6px; border-radius: 4px; }
+        .panel-controls button {
+            background: none; border: none; color: var(--text-secondary); cursor: pointer;
+            padding: 6px; border-radius: 4px; display: flex; align-items: center;
+        }
+        .panel-controls button:hover { background-color: var(--border-color); color: var(--text-primary); }
+
         .panel-content { flex-grow: 1; overflow: hidden; }
         .panel-content iframe { width: 100%; height: 100%; border: none; }
 
-        /* ✨ ESTRATEGIA 1: Tirador para redimensionar */
-        .resize-handle {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 20px;
-            height: 20px;
-            cursor: se-resize;
-            background-image: linear-gradient(135deg, transparent 50%, var(--text-secondary) 50%, var(--text-secondary) 60%, transparent 60%), linear-gradient(135deg, transparent 70%, var(--text-secondary) 70%, var(--text-secondary) 80%, transparent 80%);
-            opacity: 0.5;
+        /* --- ESTRATEGIA 2: ESTILOS PARA MAXIMIZAR PANEL --- */
+        .grid-panel.maximized {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            border-radius: 0;
+            z-index: 1000;
+            transform: none !important; /* Sobrescribir el efecto hover */
         }
-        .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 80vh; color: var(--text-secondary); }
+
+        .empty-state {
+            grid-column: 1 / -1; /* Ocupar todo el ancho de la grid */
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
     </style>
 </head>
 <body>
     <div id="app-container">
-        <header id="app-header"></header>
-        <nav id="tab-nav"></nav>
+        <div class="sticky-header">
+            <header id="app-header">
+                <div class="logo">Syklo Ops v6.0</div>
+                <button id="add-panel-btn">Agregar Panel</button>
+            </header>
+            <nav id="tab-nav">
+                <button class="tab-btn active" data-tab="ves">VES</button>
+                <button class="tab-btn" data-tab="cripto">CRIPTO / USD</button>
+                <button class="tab-btn" data-tab="global">Transacciones</button>
+            </nav>
+        </div>
 
         <main id="content-container">
-            <div id="tab-panel-ves" class="tab-panel active panel-grid">
-                <div class="empty-state" id="ves-empty-state"><p>No hay paneles de VES. Agrega uno para comenzar.</p></div>
+            <div id="tab-panel-ves" class="tab-panel active">
+                <div class="empty-state" id="ves-empty-state">No hay paneles de VES.</div>
             </div>
-            <div id="tab-panel-cripto" class="tab-panel panel-grid">
-                <div class="empty-state" id="cripto-empty-state"><p>No hay paneles de CRIPTO/USD. Agrega uno para comenzar.</p></div>
+            <div id="tab-panel-cripto" class="tab-panel">
+                <div class="empty-state" id="cripto-empty-state">No hay paneles de CRIPTO/USD.</div>
             </div>
-            <div id="tab-panel-global" class="tab-panel"><iframe src="https://webapp.syklo.io/transactions"></iframe></div>
+            <div id="tab-panel-global" class="tab-panel">
+                <iframe src="https://webapp.syklo.io/transactions" style="width: 100%; height: 80vh; border:none; border-radius: var(--radius);"></iframe>
+            </div>
         </main>
     </div>
+
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const STORAGE_KEY = 'sykloDashboardPanels_v5';
-        let allPanels = [];
-        
-        // Función para renderizar paneles
-        const renderAllPanels = () => {
-            document.querySelectorAll('.panel-grid').forEach(grid => {
-                grid.querySelectorAll('.grid-panel').forEach(p => p.remove());
-            });
-
-            const vesPanels = allPanels.filter(p => p.category === 'VES');
-            const criptoPanels = allPanels.filter(p => p.category === 'CRIPTO');
-
-            vesPanels.forEach(panel => createPanelElement(panel));
-            criptoPanels.forEach(panel => createPanelElement(panel));
-            
-            updateEmptyStates();
+        const ICONS = {
+            refresh: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>',
+            maximize: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>',
+            minimize: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>',
+            close: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
         };
 
-        const updateEmptyStates = () => {
-            const vesGrid = document.getElementById('tab-panel-ves');
-            const criptoGrid = document.getElementById('tab-panel-cripto');
-            document.getElementById('ves-empty-state').style.display = vesGrid.querySelector('.grid-panel') ? 'none' : 'flex';
-            document.getElementById('cripto-empty-state').style.display = criptoGrid.querySelector('.grid-panel') ? 'none' : 'flex';
+        const renderPanels = () => {
+            // Lógica para renderizar paneles (se puede rellenar desde localStorage)
         };
 
-        const createPanelElement = (panel) => {
-            const container = document.getElementById(panel.category === 'VES' ? 'tab-panel-ves' : 'tab-panel-cripto');
-            const panelEl = document.createElement('div');
-            panelEl.className = 'grid-panel';
-            panelEl.dataset.id = panel.id;
-            
-            // Aplica dimensiones y posición guardadas
-            if (panel.width) panelEl.style.width = panel.width;
-            if (panel.height) panelEl.style.height = panel.height;
-            if (panel.x) panelEl.dataset.x = panel.x;
-            if (panel.y) panelEl.dataset.y = panel.y;
-            
-            panelEl.innerHTML = `
-                <div class="panel-header">
-                    <span class="panel-title">${panel.title}</span>
-                    <div class="panel-controls"></div>
-                </div>
-                <div class="panel-content"><iframe src="${panel.url}" loading="lazy"></iframe></div>
-                <div class="resize-handle"></div>
-            `;
-            container.appendChild(panelEl);
-
-            // ... (Event listeners para botones de cerrar, etc.)
-        };
-
-        // ... (Funciones de addPanel, removePanel, saveState, loadState, etc. sin cambios mayores)
-        const loadState = () => {
-            const savedState = localStorage.getItem(STORAGE_KEY);
-            allPanels = savedState ? JSON.parse(savedState) : [];
-            renderAllPanels();
-        };
-        loadState(); // Carga inicial
-
-        // ✨ ESTRATEGIA 1: INICIALIZACIÓN DE INTERACT.JS
-        interact('.grid-panel')
-            .resizable({
-                edges: { left: false, right: true, bottom: true, top: false },
-                listeners: {
-                    move(event) {
-                        let target = event.target;
-                        let x = (parseFloat(target.getAttribute('data-x')) || 0);
-                        let y = (parseFloat(target.getAttribute('data-y')) || 0);
-
-                        target.style.width = event.rect.width + 'px';
-                        target.style.height = event.rect.height + 'px';
-
-                        target.setAttribute('data-x', x);
-                        target.setAttribute('data-y', y);
-                    },
-                    end(event) {
-                        const panelId = event.target.dataset.id;
-                        const panel = allPanels.find(p => p.id === panelId);
-                        if (panel) {
-                            panel.width = event.target.style.width;
-                            panel.height = event.target.style.height;
-                            //saveState(); // Descomentar si se quiere guardar el tamaño
-                        }
-                    }
-                },
-                modifiers: [
-                    interact.modifiers.restrictSize({
-                        min: { width: 320, height: 350 }
-                    })
-                ],
-                inertia: true
-            })
-            // También podemos hacerlo arrastrable (opcional)
-            .draggable({
-                listeners: { 
-                    move(event) {
-                        let target = event.target;
-                        let x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
-                        let y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
-
-                        target.style.transform = `translate(${x}px, ${y}px)`;
-                        target.setAttribute('data-x', x);
-                        target.setAttribute('data-y', y);
-                    },
-                    end(event) {
-                        const panelId = event.target.dataset.id;
-                        const panel = allPanels.find(p => p.id === panelId);
-                        if (panel) {
-                            panel.x = event.target.getAttribute('data-x');
-                            panel.y = event.target.getAttribute('data-y');
-                            //saveState(); // Descomentar si se quiere guardar la posición
-                        }
-                    }
-                },
-                inertia: true,
-                modifiers: [
-                    interact.modifiers.restrictRect({
-                        restriction: 'parent',
-                        endOnly: true
-                    })
-                ]
-            });
-            
-        // Lógica de pestañas
+        // --- LÓGICA DE PESTAÑAS ---
         document.querySelectorAll('.tab-btn').forEach(button => {
             button.addEventListener('click', () => {
                 document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
                 button.classList.add('active');
-                const targetTab = button.dataset.tab;
+                const targetTabId = `tab-panel-${button.dataset.tab}`;
                 document.querySelectorAll('.tab-panel').forEach(panel => {
-                    panel.classList.toggle('active', panel.id.includes(targetTab));
+                    panel.style.display = panel.id === targetTabId ? 'grid' : 'none';
+                    if (panel.id === 'tab-panel-global' && panel.id === targetTabId) {
+                         panel.style.display = 'block';
+                    }
                 });
             });
         });
+
+        // --- LÓGICA PARA CREAR Y MANEJAR UN PANEL ---
+        const addPanel = (category, title, url) => {
+            const containerId = `tab-panel-${category.toLowerCase()}`;
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            // Ocultar el estado vacío
+            container.querySelector('.empty-state').style.display = 'none';
+
+            const panelEl = document.createElement('div');
+            panelEl.className = 'grid-panel';
+            panelEl.dataset.title = title; // Guardar el título original
+            
+            panelEl.innerHTML = `
+                <div class="panel-header">
+                    <span class="panel-title">${title}</span>
+                    <div class="panel-controls">
+                        <button class="refresh-btn" title="Recargar">${ICONS.refresh}</button>
+                        <button class="maximize-btn" title="Maximizar">${ICONS.maximize}</button>
+                        <button class="close-btn" title="Cerrar">${ICONS.close}</button>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <iframe src="${url}" loading="lazy"></iframe>
+                </div>
+            `;
+            container.appendChild(panelEl);
+
+            // --- AÑADIR EVENTOS A LOS BOTONES DEL PANEL ---
+            const maximizeBtn = panelEl.querySelector('.maximize-btn');
+            maximizeBtn.addEventListener('click', () => {
+                // Alternar la clase 'maximized' en el panel
+                panelEl.classList.toggle('maximized');
+                // Bloquear/desbloquear el scroll del body
+                document.body.classList.toggle('panel-maximized-mode');
+                // Cambiar el ícono y el título del botón
+                const isMaximized = panelEl.classList.contains('maximized');
+                maximizeBtn.innerHTML = isMaximized ? ICONS.minimize : ICONS.maximize;
+                maximizeBtn.title = isMaximized ? 'Minimizar' : 'Maximizar';
+            });
+
+            panelEl.querySelector('.close-btn').addEventListener('click', () => {
+                panelEl.remove();
+                // Si el contenedor se queda sin paneles, mostrar el estado vacío
+                if (!container.querySelector('.grid-panel')) {
+                    container.querySelector('.empty-state').style.display = 'block';
+                }
+            });
+
+            panelEl.querySelector('.refresh-btn').addEventListener('click', () => {
+                const iframe = panelEl.querySelector('iframe');
+                if (iframe) iframe.src = iframe.src;
+            });
+        };
+
+        // --- Ejemplo de cómo añadir paneles (simula el modal) ---
+        document.getElementById('add-panel-btn').addEventListener('click', () => {
+             // Aquí iría la lógica del modal para seleccionar qué panel añadir.
+             // Como ejemplo, añadimos uno directamente:
+             addPanel('VES', '📱 Pago Móvil', 'https://explorer.syklo.io/swap#is_sending=true&send_pms=VES:VE:PF&receive_pms=VES:VE:PF');
+        });
+
+        // Inicializar el estado de la primera pestaña
+        document.querySelector('.tab-btn[data-tab="ves"]').click();
     });
     </script>
 </body>
