@@ -2,79 +2,128 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Syklo Ops Dashboard v6.0 (Estable)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Syklo Ops Dashboard v5.0 (Móvil)</title>
+    <meta name="theme-color" content="#0f172a"/>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192x192.png">
+
     <style>
         :root {
-            --bg-primary: #0f172a; --bg-secondary: #1e293b; --bg-card: #1e293b;
-            --border-color: #334155; --text-primary: #f1f5f9; --text-secondary: #94a3b8;
-            --accent-primary: #3b82f6; --accent-danger: #ef4444; --accent-pin: #f59e0b;
-            --radius: 8px; --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --bg-card: #1e293b;
+            --border-color: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent-primary: #3b82f6;
+            --accent-primary-hover: #2563eb;
+            --accent-danger: #ef4444;
+            --accent-pin: #f59e0b;
+            --accent-success: #10b981;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            --radius: 8px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --transition: all 0.2s ease-in-out;
         }
 
-        /* --- ESTRATEGIA 1: CONFIGURACIÓN PARA SCROLL NATIVO --- */
-        html {
-            scroll-behavior: smooth;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: var(--font-family);
             background-color: var(--bg-primary);
             color: var(--text-primary);
-            margin: 0;
-            padding: 0;
-        }
-        /* Clase para bloquear el scroll del body cuando un panel está maximizado */
-        body.panel-maximized-mode {
-            overflow: hidden;
+            /* ANOTACIÓN: Se elimina 'overflow: hidden' para permitir el scroll natural. */
+            line-height: 1.5;
         }
 
         #app-container {
-            width: 100%;
+            display: flex;
+            flex-direction: column;
+            /* ANOTACIÓN: Se quita la altura fija (height: 100vh) para que el contenido pueda crecer. */
+            min-height: 100vh;
         }
 
-        /* --- Cabecera y Navegación Fijas (Sticky) --- */
-        .sticky-header {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background-color: var(--bg-secondary);
-            box-shadow: var(--shadow);
-        }
         #app-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 16px;
+            padding: 12px 20px;
+            background-color: var(--bg-secondary);
             border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            /* ANOTACIÓN: Se añade position sticky para que el header se quede fijo al hacer scroll */
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
+        
+        .logo { font-size: 18px; font-weight: 700; }
+
+        .header-controls button {
+            background-color: var(--accent-primary);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: var(--radius);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+        .header-controls button:hover { background-color: var(--accent-primary-hover); }
+
         #tab-nav {
             display: flex;
-            padding: 0 10px;
-            overflow-x: auto;
+            background-color: var(--bg-secondary);
             border-bottom: 1px solid var(--border-color);
-        }
-        .tab-btn {
-            padding: 12px 16px; font-size: 14px; font-weight: 500; background: transparent;
-            border: none; border-bottom: 3px solid transparent; color: var(--text-secondary);
-            cursor: pointer; white-space: nowrap; flex-shrink: 0;
-        }
-        .tab-btn.active {
-            color: var(--accent-primary);
-            border-bottom-color: var(--accent-primary);
+            padding: 0 20px;
+            gap: 8px;
+            /* ANOTACIÓN: Se añade position sticky para que las pestañas también se queden fijas */
+            position: sticky;
+            top: 61px; /* Altura del header */
+            z-index: 999;
         }
 
-        /* --- Contenido y Paneles --- */
-        #content-container {
-            padding: 16px;
+        .tab-btn {
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            background-color: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
         }
+        .tab-btn:hover { background-color: var(--bg-tertiary); color: var(--text-primary); }
+        .tab-btn.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
+
+        #content-container {
+             /* ANOTACIÓN: Se eliminan las propiedades 'position' y 'overflow' para simplificar. */
+        }
+        
         .tab-panel {
-            display: none; /* Ocultar paneles inactivos */
+            /* ANOTACIÓN: Se cambia de 'position: absolute' a 'display: none' para el estado inactivo. */
+            display: none;
         }
         .tab-panel.active {
-            display: grid; /* Mostrar panel activo como grid */
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 16px;
+            display: block; /* Se mostrará como bloque y ocupará su espacio natural. */
         }
+
+        .panel-grid {
+            display: grid;
+            gap: 16px;
+            padding: 16px;
+            /* ANOTACIÓN: La magia del layout responsivo y que se expande. */
+            /* Crea columnas de mínimo 350px, y las ajusta para rellenar el espacio. */
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        }
+
         .grid-panel {
             background-color: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -83,168 +132,311 @@
             flex-direction: column;
             min-height: 400px;
             box-shadow: var(--shadow);
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            transition: var(--transition);
+            /* ANOTACIÓN: Se elimina 'resize: both' y 'overflow: auto'. */
         }
         .grid-panel:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
+        .grid-panel.pinned { border-left: 4px solid var(--accent-pin); }
 
-        .panel-header {
-            display: flex; align-items: center; gap: 8px;
-            padding: 12px 16px; border-bottom: 1px solid var(--border-color);
-            flex-shrink: 0;
-        }
-        .panel-title { font-weight: 600; flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .panel-controls { display: flex; gap: 4px; }
-        .panel-controls button {
-            background: none; border: none; color: var(--text-secondary); cursor: pointer;
-            padding: 6px; border-radius: 4px; display: flex; align-items: center;
-        }
-        .panel-controls button:hover { background-color: var(--border-color); color: var(--text-primary); }
-
-        .panel-content { flex-grow: 1; overflow: hidden; }
-        .panel-content iframe { width: 100%; height: 100%; border: none; }
-
-        /* --- ESTRATEGIA 2: ESTILOS PARA MAXIMIZAR PANEL --- */
+        /* ANOTACIÓN: Estilos para el nuevo modo maximizado (ZOOM) */
         .grid-panel.maximized {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
+            min-height: 0;
+            z-index: 2000;
             border-radius: 0;
-            z-index: 1000;
-            transform: none !important; /* Sobrescribir el efecto hover */
+            border: none;
+        }
+        body.panel-maximized-active {
+            overflow: hidden; /* Evita el scroll del fondo cuando un panel está maximizado */
         }
 
-        .empty-state {
-            grid-column: 1 / -1; /* Ocupar todo el ancho de la grid */
-            text-align: center;
-            padding: 40px;
-            color: var(--text-secondary);
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .panel-title { font-weight: 600; flex-grow: 1; }
+
+        .panel-controls { display: flex; gap: 4px; }
+        .panel-controls button {
+            background: none; border: none; color: var(--text-secondary);
+            cursor: pointer; padding: 6px; display: flex;
+            border-radius: 4px; transition: var(--transition);
+        }
+        .panel-controls button:hover { background-color: var(--bg-tertiary); color: var(--text-primary); }
+        .panel-controls button.close-btn:hover { background-color: var(--accent-danger); color: white; }
+        
+        .panel-content { flex-grow: 1; overflow: hidden; }
+        .panel-content iframe { width: 100%; height: 100%; border: none; }
+
+        #tab-panel-global iframe { width: 100%; height: calc(100vh - 122px); border: none; }
+        
+        .empty-state { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 50vh; text-align: center; color: var(--text-secondary); }
+        .empty-state.visible { display: flex; }
+
+        /* Modal (sin cambios mayores) */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 1001; backdrop-filter: blur(2px); }
+        .modal { background: var(--bg-secondary); border-radius: var(--radius); width: 90%; max-width: 500px; padding: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        .modal h3 { margin: 0 0 20px 0; }
+        .modal select { width: 100%; padding: 12px; margin-bottom: 24px; background-color: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius); color: var(--text-primary); font-size: 14px; }
+        .modal-buttons { display: flex; gap: 12px; justify-content: flex-end; }
+        .modal-btn { padding: 10px 20px; border-radius: var(--radius); border: none; cursor: pointer; }
+        .modal-btn.primary { background-color: var(--accent-primary); color: white; }
+        .modal-btn.secondary { background-color: var(--bg-tertiary); color: var(--text-primary); }
+
+        @media (max-width: 768px) {
+            .panel-grid { grid-template-columns: 1fr !important; padding: 12px; }
+            #tab-nav { padding: 0 12px; top: 57px; }
+            #app-header { padding: 10px 12px; }
         }
     </style>
 </head>
 <body>
     <div id="app-container">
-        <div class="sticky-header">
-            <header id="app-header">
-                <div class="logo">Syklo Ops v6.0</div>
-                <button id="add-panel-btn">Agregar Panel</button>
-            </header>
-            <nav id="tab-nav">
-                <button class="tab-btn active" data-tab="ves">VES</button>
-                <button class="tab-btn" data-tab="cripto">CRIPTO / USD</button>
-                <button class="tab-btn" data-tab="global">Transacciones</button>
-            </nav>
-        </div>
+        <header id="app-header">
+            <div class="logo">Syklo Ops v5.0</div>
+            <div class="header-controls">
+                <button id="add-panel-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    <span>Agregar</span>
+                </button>
+            </div>
+        </header>
+
+        <nav id="tab-nav">
+            <button class="tab-btn active" data-tab="ves">VES</button>
+            <button class="tab-btn" data-tab="cripto">CRIPTO / USD</button>
+            <button class="tab-btn" data-tab="global">Transacciones</button>
+        </nav>
 
         <main id="content-container">
             <div id="tab-panel-ves" class="tab-panel active">
-                <div class="empty-state" id="ves-empty-state">No hay paneles de VES.</div>
+                <div class="panel-grid"></div>
+                <div class="empty-state" id="ves-empty-state">
+                    <p>No hay paneles de VES. Haz clic en "Agregar" para comenzar.</p>
+                </div>
             </div>
             <div id="tab-panel-cripto" class="tab-panel">
-                <div class="empty-state" id="cripto-empty-state">No hay paneles de CRIPTO/USD.</div>
+                <div class="panel-grid"></div>
+                 <div class="empty-state" id="cripto-empty-state">
+                    <p>No hay paneles de CRIPTO/USD. Haz clic en "Agregar" para comenzar.</p>
+                </div>
             </div>
             <div id="tab-panel-global" class="tab-panel">
-                <iframe src="https://webapp.syklo.io/transactions" style="width: 100%; height: 80vh; border:none; border-radius: var(--radius);"></iframe>
+                <iframe src="https://webapp.syklo.io/transactions"></iframe>
             </div>
         </main>
     </div>
 
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal">
+            <h3>Seleccionar Panel</h3>
+            <select id="panel-opcion">
+    <option value="" disabled selected>Elige un servicio...</option>
+    <optgroup label="VES">
+        <option data-category="VES" data-url="https://explorer.syklo.io/swap#is_sending=true&send_pms=VES:VE:PF&receive_pms=VES:VE:PF">📱 Pago Móvil</option>
+        <option data-category="VES" data-url="https://explorer.syklo.io/swap#is_sending=true&send_pms=VES:VE:VEBN1&receive_pms=VES:VE:VEBN1">🏦 Banesco</option>
+        <option data-category="VES" data-url="https://explorer.syklo.io/swap#is_sending=true&send_pms=VES:VE:VEBN5&receive_pms=VES:VE:VEBN5">🏦 Bancamiga</option>
+        <option data-category="VES" data-url="https://explorer.syklo.io/swap#is_sending=true&send_pms=VES:VE:VEBN29&receive_pms=VES:VE:VEBN29">🏦 BNC</option>
+        <option data-category="VES" data-url="https://explorer.syklo.io/swap#is_sending=true&send_pms=VES:VE:VEBN2&receive_pms=VES:VE:VEBN2">🏦 Venezuela</option>
+        <option data-category="VES" data-url="https://explorer.syklo.io/swap#is_sending=true&send_pms=VES:VE:VEBN15&receive_pms=VES:VE:VEBN15">🏦 Mercantil</option>
+    </optgroup>
+    <optgroup label="CRIPTO / USD">
+        <option data-category="CRIPTO" data-url="https://explorer.syklo.io/swap#is_sending=true&receive_pms=USD:ALL:WTE&send_pms=USD:ALL:WTE">💵 Wally</option>
+        <option data-category="CRIPTO" data-url="https://explorer.syklo.io/swap#is_sending=true&send_pms=USD:ALL:ZI&receive_pms=USD:ALL:ZI">💵 Zinli</option>
+        <option data-category="CRIPTO" data-url="https://explorer.syklo.io/swap#is_sending=true&send_pms=USDT:ALL:APPA&receive_pms=USDT:ALL:APPA">🔶 Apolo Pay</option>
+        <option data-category="CRIPTO" data-url="https://explorer.syklo.io/swap#is_sending=true&receive_pms=USDT:ALL:BYB&send_pms=USDT:ALL:BYB">🟡 Bybit</option>
+        <option data-category="CRIPTO" data-url="https://explorer.syklo.io/swap#is_sending=true&send_pms=USDT:ALL:C01&receive_pms=USDT:ALL:C01">🟡 Binance</option>
+	<option data-category="CRIPTO" data-url="https://explorer.syklo.io/swap#is_sending=true&send_pms=USDC:ALL:ME&receive_pms=USDC:ALL:ME">🟡 Meru</option>
+    </optgroup>
+</select>
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" id="cancelar-btn">Cancelar</button>
+                <button class="modal-btn primary" id="ok-btn">Agregar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
     document.addEventListener('DOMContentLoaded', () => {
+        const vesGrid = document.querySelector('#tab-panel-ves .panel-grid');
+        const criptoGrid = document.querySelector('#tab-panel-cripto .panel-grid');
+        const vesEmptyState = document.getElementById('ves-empty-state');
+        const criptoEmptyState = document.getElementById('cripto-empty-state');
+        const modalOverlay = document.getElementById('modal-overlay');
+        const addPanelBtn = document.getElementById('add-panel-btn');
+        const okBtn = document.getElementById('ok-btn');
+        const panelOpcionSelect = document.getElementById('panel-opcion');
+        
+        const STORAGE_KEY = 'sykloDashboardPanels_v5';
+
+        // ANOTACIÓN: Nuevos iconos para maximizar y menú de opciones
         const ICONS = {
-            refresh: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>',
-            maximize: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>',
-            minimize: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>',
-            close: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+            refresh: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>',
+            edit: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>',
+            pin: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>',
+            close: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>',
+            maximize: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>',
+            minimize: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path></svg>'
         };
 
-        const renderPanels = () => {
-            // Lógica para renderizar paneles (se puede rellenar desde localStorage)
-        };
+        let allPanels = [];
 
-        // --- LÓGICA DE PESTAÑAS ---
+        // Navegación por pestañas (simplificada)
         document.querySelectorAll('.tab-btn').forEach(button => {
             button.addEventListener('click', () => {
-                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelector('.tab-btn.active').classList.remove('active');
                 button.classList.add('active');
-                const targetTabId = `tab-panel-${button.dataset.tab}`;
-                document.querySelectorAll('.tab-panel').forEach(panel => {
-                    panel.style.display = panel.id === targetTabId ? 'grid' : 'none';
-                    if (panel.id === 'tab-panel-global' && panel.id === targetTabId) {
-                         panel.style.display = 'block';
-                    }
-                });
+                document.querySelector('.tab-panel.active').classList.remove('active');
+                document.getElementById(`tab-panel-${button.dataset.tab}`).classList.add('active');
             });
         });
 
-        // --- LÓGICA PARA CREAR Y MANEJAR UN PANEL ---
-        const addPanel = (category, title, url) => {
-            const containerId = `tab-panel-${category.toLowerCase()}`;
-            const container = document.getElementById(containerId);
-            if (!container) return;
+        // ANOTACIÓN: Se elimina la función compleja 'updateGridLayout'. El CSS ahora se encarga de todo.
+        // La única lógica que necesitamos es mostrar/ocultar el mensaje de "vacío".
+        const checkEmptyStates = () => {
+            const vesCount = allPanels.filter(p => p.category === 'VES').length;
+            const criptoCount = allPanels.filter(p => p.category === 'CRIPTO').length;
+            vesEmptyState.classList.toggle('visible', vesCount === 0);
+            criptoEmptyState.classList.toggle('visible', criptoCount === 0);
+        };
 
-            // Ocultar el estado vacío
-            container.querySelector('.empty-state').style.display = 'none';
+        const renderAllPanels = () => {
+            vesGrid.innerHTML = '';
+            criptoGrid.innerHTML = '';
 
+            const sortedPanels = [...allPanels].sort((a, b) => b.pinned - a.pinned);
+
+            sortedPanels.forEach(panel => {
+                const container = panel.category === 'VES' ? vesGrid : criptoGrid;
+                createPanelElement(panel, container);
+            });
+            
+            checkEmptyStates();
+        };
+
+        const createPanelElement = (panel, container) => {
             const panelEl = document.createElement('div');
             panelEl.className = 'grid-panel';
-            panelEl.dataset.title = title; // Guardar el título original
-            
+            panelEl.dataset.id = panel.id;
+            if (panel.pinned) panelEl.classList.add('pinned');
+
             panelEl.innerHTML = `
                 <div class="panel-header">
-                    <span class="panel-title">${title}</span>
+                    <span class="panel-title">${panel.title}</span>
                     <div class="panel-controls">
-                        <button class="refresh-btn" title="Recargar">${ICONS.refresh}</button>
                         <button class="maximize-btn" title="Maximizar">${ICONS.maximize}</button>
+                        <button class="pin-btn ${panel.pinned ? 'active' : ''}" title="Fijar">${ICONS.pin}</button>
+                        <button class="refresh-btn" title="Recargar">${ICONS.refresh}</button>
+                        <button class="edit-btn" title="Editar Nombre">${ICONS.edit}</button>
                         <button class="close-btn" title="Cerrar">${ICONS.close}</button>
                     </div>
                 </div>
                 <div class="panel-content">
-                    <iframe src="${url}" loading="lazy"></iframe>
+                    <iframe src="${panel.url}" loading="lazy"></iframe>
                 </div>
             `;
             container.appendChild(panelEl);
 
-            // --- AÑADIR EVENTOS A LOS BOTONES DEL PANEL ---
-            const maximizeBtn = panelEl.querySelector('.maximize-btn');
-            maximizeBtn.addEventListener('click', () => {
-                // Alternar la clase 'maximized' en el panel
-                panelEl.classList.toggle('maximized');
-                // Bloquear/desbloquear el scroll del body
-                document.body.classList.toggle('panel-maximized-mode');
-                // Cambiar el ícono y el título del botón
-                const isMaximized = panelEl.classList.contains('maximized');
-                maximizeBtn.innerHTML = isMaximized ? ICONS.minimize : ICONS.maximize;
-                maximizeBtn.title = isMaximized ? 'Minimizar' : 'Maximizar';
-            });
-
-            panelEl.querySelector('.close-btn').addEventListener('click', () => {
-                panelEl.remove();
-                // Si el contenedor se queda sin paneles, mostrar el estado vacío
-                if (!container.querySelector('.grid-panel')) {
-                    container.querySelector('.empty-state').style.display = 'block';
-                }
-            });
-
-            panelEl.querySelector('.refresh-btn').addEventListener('click', () => {
-                const iframe = panelEl.querySelector('iframe');
-                if (iframe) iframe.src = iframe.src;
-            });
+            // Event Listeners
+            panelEl.querySelector('.close-btn').addEventListener('click', () => removePanel(panel.id));
+            panelEl.querySelector('.refresh-btn').addEventListener('click', () => refreshPanel(panel.id));
+            panelEl.querySelector('.edit-btn').addEventListener('click', () => editPanelTitle(panel.id));
+            panelEl.querySelector('.pin-btn').addEventListener('click', () => togglePinPanel(panel.id));
+            panelEl.querySelector('.maximize-btn').addEventListener('click', () => toggleMaximizePanel(panel.id));
+        };
+        
+        const saveState = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(allPanels));
+        const loadState = () => {
+            allPanels = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            renderAllPanels();
         };
 
-        // --- Ejemplo de cómo añadir paneles (simula el modal) ---
-        document.getElementById('add-panel-btn').addEventListener('click', () => {
-             // Aquí iría la lógica del modal para seleccionar qué panel añadir.
-             // Como ejemplo, añadimos uno directamente:
-             addPanel('VES', '📱 Pago Móvil', 'https://explorer.syklo.io/swap#is_sending=true&send_pms=VES:VE:PF&receive_pms=VES:VE:PF');
+        const addPanel = (title, url, category) => {
+            allPanels.push({ id: `panel-${Date.now()}`, title, url, category, pinned: false });
+            saveState();
+            renderAllPanels();
+        };
+
+        const removePanel = (id) => {
+            if (confirm('¿Eliminar este panel?')) {
+                allPanels = allPanels.filter(p => p.id !== id);
+                saveState();
+                renderAllPanels();
+            }
+        };
+        
+        const refreshPanel = (id) => {
+            const iframe = document.querySelector(`.grid-panel[data-id="${id}"] iframe`);
+            if (iframe) iframe.src = iframe.src;
+        };
+
+        const editPanelTitle = (id) => {
+            const panel = allPanels.find(p => p.id === id);
+            const newTitle = prompt('Nuevo nombre para el panel:', panel.title);
+            if (newTitle && newTitle.trim()) {
+                panel.title = newTitle.trim();
+                saveState();
+                renderAllPanels();
+            }
+        };
+
+        const togglePinPanel = (id) => {
+            const panel = allPanels.find(p => p.id === id);
+            panel.pinned = !panel.pinned;
+            saveState();
+            renderAllPanels();
+        };
+
+        // ANOTACIÓN: Nueva función para maximizar/minimizar
+        const toggleMaximizePanel = (id) => {
+            const panelEl = document.querySelector(`.grid-panel[data-id="${id}"]`);
+            const btn = panelEl.querySelector('.maximize-btn');
+            const isMaximized = panelEl.classList.toggle('maximized');
+            
+            document.body.classList.toggle('panel-maximized-active', isMaximized);
+            btn.innerHTML = isMaximized ? ICONS.minimize : ICONS.maximize;
+            btn.title = isMaximized ? 'Minimizar' : 'Maximizar';
+        };
+
+        const showModal = (show) => modalOverlay.style.display = show ? 'flex' : 'none';
+
+        addPanelBtn.addEventListener('click', () => {
+            panelOpcionSelect.selectedIndex = 0;
+            showModal(true);
+        });
+        document.getElementById('cancelar-btn').addEventListener('click', () => showModal(false));
+        modalOverlay.addEventListener('click', (e) => e.target === modalOverlay && showModal(false));
+        
+        okBtn.addEventListener('click', () => {
+            const selected = panelOpcionSelect.options[panelOpcionSelect.selectedIndex];
+            if (!selected || !selected.dataset.url) return alert('Por favor, selecciona un servicio.');
+            addPanel(selected.text, selected.dataset.url, selected.dataset.category);
+            showModal(false);
         });
 
-        // Inicializar el estado de la primera pestaña
-        document.querySelector('.tab-btn[data-tab="ves"]').click();
+        loadState();
+
+        // ANOTACIÓN: Código para registrar el Service Worker para la funcionalidad PWA.
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').then(registration => {
+                    console.log('ServiceWorker registrado con éxito:', registration.scope);
+                }).catch(error => {
+                    console.log('Fallo en el registro de ServiceWorker:', error);
+                });
+            });
+        }
     });
     </script>
 </body>
