@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Syklo Ops Dashboard v7.1 (Delay)</title>
+    <title>Syklo Ops Dashboard v7.2 (Final)</title>
     <meta name="theme-color" content="#0f172a"/>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192x192.png">
@@ -33,16 +33,12 @@
         .panel-grid { display: grid; gap: 16px; padding: 16px; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); min-height: 100px; }
         .grid-panel { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); display: flex; flex-direction: column; min-height: 400px; box-shadow: var(--shadow); transition: border-color 0.2s, transform 0.2s ease-out, box-shadow 0.2s; }
         .grid-panel.pinned { border-left: 4px solid var(--accent-pin); }
-        .panel-header { cursor: move; }
-        .sortable-ghost { opacity: 0.4; }
         
-        /* ANOTACIÓN: Esta es la clase para el indicador visual. Agranda el panel ligeramente. */
-        .panel-primed {
-            transform: scale(1.03);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-            border-color: var(--accent-primary);
-        }
-
+        /* ANOTACIÓN: Se cambió el selector para que solo el título tenga el cursor de "mover". */
+        .panel-title { cursor: move; }
+        
+        .sortable-ghost { opacity: 0.4; }
+        .panel-primed { transform: scale(1.03); box-shadow: 0 8px 25px rgba(0,0,0,0.3); border-color: var(--accent-primary); }
         .grid-panel.maximized { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 2000; border-radius: 0; }
         body.panel-maximized-active { overflow: hidden; }
         .panel-header { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--border-color); }
@@ -63,7 +59,7 @@
 </head>
 <body>
     <div id="app-container">
-        <header id="app-header"><div class="logo">Syklo Ops v7.1</div><div class="header-controls"><button id="add-panel-btn"><span>Agregar</span></button></div></header>
+        <header id="app-header"><div class="logo">Syklo Ops v7.2</div><div class="header-controls"><button id="add-panel-btn"><span>Agregar</span></button></div></header>
         <nav id="tab-nav">
             <button class="tab-btn active" data-tab="ves">VES</button><button class="tab-btn" data-tab="cripto">CRIPTO / USD</button><button class="tab-btn" data-tab="global">Transacciones</button>
         </nav>
@@ -89,6 +85,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         const vesGrid = document.getElementById('ves-grid');
         const criptoGrid = document.getElementById('cripto-grid');
+        // ... (resto de las constantes sin cambios)
         const vesEmptyState = document.getElementById('ves-empty-state');
         const criptoEmptyState = document.getElementById('cripto-empty-state');
         const modalOverlay = document.getElementById('modal-overlay');
@@ -110,12 +107,12 @@
         };
 
         const saveState = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(allPanels));
-        const checkEmptyStates = () => {
+        const checkEmptyStates = () => { /* ... (sin cambios) */ 
             vesEmptyState.classList.toggle('visible', !allPanels.some(p => p.category === 'VES'));
             criptoEmptyState.classList.toggle('visible', !allPanels.some(p => p.category === 'CRIPTO'));
         };
 
-        const createPanelElement = (panel) => {
+        const createPanelElement = (panel) => { /* ... (sin cambios) */ 
             const panelEl = document.createElement('div');
             panelEl.className = 'grid-panel';
             panelEl.dataset.id = panel.id;
@@ -130,7 +127,7 @@
             return panelEl;
         };
         
-        const addPanel = (title, url, category) => {
+        const addPanel = (title, url, category) => { /* ... (sin cambios) */ 
             const newPanelData = { id: `panel-${Date.now()}`, title, url, category, pinned: false };
             allPanels.push(newPanelData);
             const panelEl = createPanelElement(newPanelData);
@@ -140,7 +137,7 @@
             checkEmptyStates();
         };
 
-        const removePanel = (id) => {
+        const removePanel = (id) => { /* ... (sin cambios) */ 
             const panelEl = document.querySelector(`.grid-panel[data-id="${id}"]`);
             if (panelEl && confirm('¿Eliminar este panel?')) {
                 panelEl.remove();
@@ -150,12 +147,12 @@
             }
         };
 
-        const refreshPanel = (id) => {
+        const refreshPanel = (id) => { /* ... (sin cambios) */ 
             const iframe = document.querySelector(`.grid-panel[data-id="${id}"] iframe`);
             if (iframe) iframe.src += '';
         };
 
-        const editPanelTitle = (id) => {
+        const editPanelTitle = (id) => { /* ... (sin cambios) */ 
             const panelData = allPanels.find(p => p.id === id);
             const newTitle = prompt('Nuevo nombre para el panel:', panelData.title);
             if (newTitle && newTitle.trim() !== '') {
@@ -165,7 +162,7 @@
             }
         };
 
-        const togglePinPanel = (id) => {
+        const togglePinPanel = (id) => { /* ... (sin cambios) */ 
             const panelData = allPanels.find(p => p.id === id);
             const panelEl = document.querySelector(`.grid-panel[data-id="${id}"]`);
             panelData.pinned = !panelData.pinned;
@@ -178,7 +175,7 @@
             saveState();
         };
 
-        const toggleMaximizePanel = (id) => {
+        const toggleMaximizePanel = (id) => { /* ... (sin cambios) */ 
             const panelEl = document.querySelector(`.grid-panel[data-id="${id}"]`);
             panelEl.classList.toggle('maximized');
             document.body.classList.toggle('panel-maximized-active', panelEl.classList.contains('maximized'));
@@ -186,7 +183,7 @@
             btn.innerHTML = panelEl.classList.contains('maximized') ? ICONS.minimize : ICONS.maximize;
         };
 
-        const loadState = () => {
+        const loadState = () => { /* ... (sin cambios) */ 
             const savedState = localStorage.getItem(STORAGE_KEY);
             allPanels = savedState ? JSON.parse(savedState) : [];
             allPanels.sort((a, b) => (b.pinned || 0) - (a.pinned || 0));
@@ -203,18 +200,14 @@
         const initSortable = () => {
             [vesGrid, criptoGrid].forEach(gridEl => {
                 new Sortable(gridEl, {
-                    handle: '.panel-header',
+                    // ANOTACIÓN: Se cambió 'handle' para apuntar solo al título, solucionando el conflicto con los botones.
+                    handle: '.panel-title',
                     animation: 150,
                     ghostClass: 'sortable-ghost',
-                    // ANOTACIÓN: Se añaden las nuevas opciones para el delay y el indicador visual.
-                    delay: 300, // Retardo de 300ms
-                    delayOnTouchOnly: true, // El retardo solo aplica en dispositivos táctiles
-                    onChoose: (evt) => {
-                        evt.item.classList.add('panel-primed'); // Añade la clase visual al presionar
-                    },
-                    onUnchoose: (evt) => {
-                        evt.item.classList.remove('panel-primed'); // Quita la clase visual al soltar
-                    },
+                    delay: 300,
+                    delayOnTouchOnly: true,
+                    onChoose: (evt) => { evt.item.classList.add('panel-primed'); },
+                    onUnchoose: (evt) => { evt.item.classList.remove('panel-primed'); },
                     onEnd: () => {
                         document.querySelectorAll('.panel-primed').forEach(el => el.classList.remove('panel-primed'));
                         const orderedPanels = [];
@@ -227,7 +220,7 @@
             });
         };
         
-        document.querySelectorAll('.tab-btn').forEach(button => {
+        document.querySelectorAll('.tab-btn').forEach(button => { /* ... (sin cambios) */ 
             button.addEventListener('click', (e) => {
                 document.querySelector('.tab-btn.active')?.classList.remove('active');
                 e.target.classList.add('active');
@@ -236,7 +229,7 @@
             });
         });
 
-        const showModal = (show) => {
+        const showModal = (show) => { /* ... (sin cambios) */ 
              modalOverlay.style.display = show ? 'flex' : 'none';
              if (show) panelOpcionSelect.selectedIndex = 0;
         }
@@ -244,7 +237,7 @@
         cancelBtn.addEventListener('click', () => showModal(false));
         modalOverlay.addEventListener('click', (e) => { if(e.target === modalOverlay) showModal(false) });
         
-        okBtn.addEventListener('click', () => {
+        okBtn.addEventListener('click', () => { /* ... (sin cambios) */ 
             const selected = panelOpcionSelect.options[panelOpcionSelect.selectedIndex];
             if (!selected || !selected.dataset.url) return;
             addPanel(selected.text, selected.dataset.url, selected.dataset.category);
