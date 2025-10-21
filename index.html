@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Syklo Ops Dashboard v7.0 (Completo)</title>
+    <title>Syklo Ops Dashboard v7.1 (Delay)</title>
     <meta name="theme-color" content="#0f172a"/>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192x192.png">
@@ -31,10 +31,18 @@
         .tab-panel { display: none; }
         .tab-panel.active { display: block; }
         .panel-grid { display: grid; gap: 16px; padding: 16px; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); min-height: 100px; }
-        .grid-panel { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); display: flex; flex-direction: column; min-height: 400px; box-shadow: var(--shadow); transition: border-color 0.2s; }
+        .grid-panel { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); display: flex; flex-direction: column; min-height: 400px; box-shadow: var(--shadow); transition: border-color 0.2s, transform 0.2s ease-out, box-shadow 0.2s; }
         .grid-panel.pinned { border-left: 4px solid var(--accent-pin); }
         .panel-header { cursor: move; }
         .sortable-ghost { opacity: 0.4; }
+        
+        /* ANOTACIÓN: Esta es la clase para el indicador visual. Agranda el panel ligeramente. */
+        .panel-primed {
+            transform: scale(1.03);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            border-color: var(--accent-primary);
+        }
+
         .grid-panel.maximized { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 2000; border-radius: 0; }
         body.panel-maximized-active { overflow: hidden; }
         .panel-header { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--border-color); }
@@ -55,7 +63,7 @@
 </head>
 <body>
     <div id="app-container">
-        <header id="app-header"><div class="logo">Syklo Ops v7.0</div><div class="header-controls"><button id="add-panel-btn"><span>Agregar</span></button></div></header>
+        <header id="app-header"><div class="logo">Syklo Ops v7.1</div><div class="header-controls"><button id="add-panel-btn"><span>Agregar</span></button></div></header>
         <nav id="tab-nav">
             <button class="tab-btn active" data-tab="ves">VES</button><button class="tab-btn" data-tab="cripto">CRIPTO / USD</button><button class="tab-btn" data-tab="global">Transacciones</button>
         </nav>
@@ -70,13 +78,8 @@
             <h3>Seleccionar Panel</h3>
             <select id="panel-opcion">
                 <option value="" disabled selected>Elige un servicio...</option>
-                <optgroup label="VES"><option data-category="VES" data-url="https://explorer.syklo.io/swap#is_sending=true&send_pms=VES:VE:PF&receive_pms=VES:VE:PF">📱 Pago Móvil</option><option data-category="VES" data-url="https://explorer.syklo.io/swap#is_sending=true&send_pms=VES:VE:VEBN1&receive_pms=VES:VE:VEBN1">🏦 Banesco</option><option data-category="VES" data-url="https://explorer.syklo.io/swap#is_sending=true&send_pms=VES:VE:VEBN5&receive_pms=VES:VE:VEBN5">🏦 Bancamiga</option><option data-category="VES" data-url="https://explorer.syklo.io/swap#is_sending=true&send_pms=VES:VE:VEBN29&receive_pms=VES:VE:VEBN29">🏦 BNC</option><option data-category="VES" data-url="https://explorer.syklo.io/swap#is_sending=true&send_pms=VES:VE:VEBN2&receive_pms=VES:VE:VEBN2">🏦 Venezuela</option>
-<option data-category="VES" data-url="https://explorer.syklo.io/swap#is_sending=true&send_pms=VES:VE:VEBN28&receive_pms=VES:VE:VEBN28">🏦 TR Inmediata</option>
-<option data-category="VES" data-url="https://explorer.syklo.io/swap#is_sending=true&receive_pms=VES:VE:UB&send_pms=VES:VE:UB">🏦 Ubii</option>
-
-</optgroup>
+                <optgroup label="VES"><option data-category="VES" data-url="https://explorer.syklo.io/swap#is_sending=true&send_pms=VES:VE:PF&receive_pms=VES:VE:PF">📱 Pago Móvil</option><option data-category="VES" data-url="https://explorer.syklo.io/swap#is_sending=true&send_pms=VES:VE:VEBN1&receive_pms=VES:VE:VEBN1">🏦 Banesco</option><option data-category="VES" data-url="https://explorer.syklo.io/swap#is_sending=true&send_pms=VES:VE:VEBN5&receive_pms=VES:VE:VEBN5">🏦 Bancamiga</option><option data-category="VES" data-url="https://explorer.syklo.io/swap#is_sending=true&send_pms=VES:VE:VEBN29&receive_pms=VES:VE:VEBN29">🏦 BNC</option><option data-category="VES" data-url="https://explorer.syklo.io/swap#is_sending=true&send_pms=VES:VE:VEBN2&receive_pms=VES:VE:VEBN2">🏦 Venezuela</option><option data-category="VES" data-url="https://explorer.syklo.io/swap#is_sending=true&send_pms=VES:VE:VEBN15&receive_pms=VES:VE:VEBN15">🏦 Mercantil</option></optgroup>
                 <optgroup label="CRIPTO / USD"><option data-category="CRIPTO" data-url="https://explorer.syklo.io/swap#is_sending=true&receive_pms=USD:ALL:WTE&send_pms=USD:ALL:WTE">💵 Wally</option><option data-category="CRIPTO" data-url="https://explorer.syklo.io/swap#is_sending=true&send_pms=USD:ALL:ZI&receive_pms=USD:ALL:ZI">💵 Zinli</option><option data-category="CRIPTO" data-url="https://explorer.syklo.io/swap#is_sending=true&send_pms=USDT:ALL:APPA&receive_pms=USDT:ALL:APPA">🔶 Apolo Pay</option><option data-category="CRIPTO" data-url="https://explorer.syklo.io/swap#is_sending=true&receive_pms=USDT:ALL:BYB&send_pms=USDT:ALL:BYB">🟡 Bybit</option><option data-category="CRIPTO" data-url="https://explorer.syklo.io/swap#is_sending=true&send_pms=USDT:ALL:C01&receive_pms=USDT:ALL:C01">🟡 Binance</option><option data-category="CRIPTO" data-url="https://explorer.syklo.io/swap#is_sending=true&send_pms=USDC:ALL:ME&receive_pms=USDC:ALL:ME">🟡 Meru</option></optgroup>
-url="https://explorer.syklo.io/swap#is_sending=true&send_pms=USD:ALL:AT&receive_pms=USD:ALL:AT">🟡 AirTM</option></optgroup>
             </select>
             <div class="modal-buttons" style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 12px;"><button id="cancelar-btn">Cancelar</button><button id="ok-btn">Agregar</button></div>
         </div>
@@ -97,7 +100,6 @@ url="https://explorer.syklo.io/swap#is_sending=true&send_pms=USD:ALL:AT&receive_
         const STORAGE_KEY = 'sykloDashboardPanels_v7';
         let allPanels = [];
 
-        // ANOTACIÓN: Se restauran todos los iconos para los botones de control.
         const ICONS = {
             refresh: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>',
             edit: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>',
@@ -108,7 +110,6 @@ url="https://explorer.syklo.io/swap#is_sending=true&send_pms=USD:ALL:AT&receive_
         };
 
         const saveState = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(allPanels));
-        
         const checkEmptyStates = () => {
             vesEmptyState.classList.toggle('visible', !allPanels.some(p => p.category === 'VES'));
             criptoEmptyState.classList.toggle('visible', !allPanels.some(p => p.category === 'CRIPTO'));
@@ -119,30 +120,13 @@ url="https://explorer.syklo.io/swap#is_sending=true&send_pms=USD:ALL:AT&receive_
             panelEl.className = 'grid-panel';
             panelEl.dataset.id = panel.id;
             if(panel.pinned) panelEl.classList.add('pinned');
-
-            panelEl.innerHTML = `
-                <div class="panel-header">
-                    <span class="panel-title">${panel.title}</span>
-                    <div class="panel-controls">
-                        <button class="pin-btn" title="Fijar">${ICONS.pin}</button>
-                        <button class="refresh-btn" title="Recargar">${ICONS.refresh}</button>
-                        <button class="edit-btn" title="Editar Nombre">${ICONS.edit}</button>
-                        <button class="maximize-btn" title="Maximizar">${ICONS.maximize}</button>
-                        <button class="close-btn" title="Cerrar">${ICONS.close}</button>
-                    </div>
-                </div>
-                <div class="panel-content"><iframe src="${panel.url}" loading="lazy"></iframe></div>`;
-            
-            // ANOTACIÓN: Se vuelven a añadir los listeners para todas las funciones.
+            panelEl.innerHTML = `<div class="panel-header"><span class="panel-title">${panel.title}</span><div class="panel-controls"><button class="pin-btn" title="Fijar">${ICONS.pin}</button><button class="refresh-btn" title="Recargar">${ICONS.refresh}</button><button class="edit-btn" title="Editar Nombre">${ICONS.edit}</button><button class="maximize-btn" title="Maximizar">${ICONS.maximize}</button><button class="close-btn" title="Cerrar">${ICONS.close}</button></div></div><div class="panel-content"><iframe src="${panel.url}" loading="lazy"></iframe></div>`;
             panelEl.querySelector('.close-btn').addEventListener('click', (e) => { e.stopPropagation(); removePanel(panel.id); });
             panelEl.querySelector('.maximize-btn').addEventListener('click', (e) => { e.stopPropagation(); toggleMaximizePanel(panel.id); });
             panelEl.querySelector('.refresh-btn').addEventListener('click', (e) => { e.stopPropagation(); refreshPanel(panel.id); });
             panelEl.querySelector('.edit-btn').addEventListener('click', (e) => { e.stopPropagation(); editPanelTitle(panel.id); });
             panelEl.querySelector('.pin-btn').addEventListener('click', (e) => { e.stopPropagation(); togglePinPanel(panel.id); });
-            
-            // Marcar el botón de pin si está activo
             if(panel.pinned) panelEl.querySelector('.pin-btn').classList.add('active');
-            
             return panelEl;
         };
         
@@ -166,10 +150,9 @@ url="https://explorer.syklo.io/swap#is_sending=true&send_pms=USD:ALL:AT&receive_
             }
         };
 
-        // ANOTACIÓN: Funciones de control restauradas.
         const refreshPanel = (id) => {
             const iframe = document.querySelector(`.grid-panel[data-id="${id}"] iframe`);
-            if (iframe) iframe.src += ''; // Una forma simple de recargar
+            if (iframe) iframe.src += '';
         };
 
         const editPanelTitle = (id) => {
@@ -186,18 +169,13 @@ url="https://explorer.syklo.io/swap#is_sending=true&send_pms=USD:ALL:AT&receive_
             const panelData = allPanels.find(p => p.id === id);
             const panelEl = document.querySelector(`.grid-panel[data-id="${id}"]`);
             panelData.pinned = !panelData.pinned;
-
             panelEl.classList.toggle('pinned', panelData.pinned);
             panelEl.querySelector('.pin-btn').classList.toggle('active', panelData.pinned);
-            
-            // Mover el panel al principio del grid visualmente sin recargar todo
             if (panelData.pinned) {
                 const container = panelData.category === 'VES' ? vesGrid : criptoGrid;
                 container.prepend(panelEl);
             }
-            
             saveState();
-            // No es necesario redibujar todo, el orden se corregirá al guardar y recargar la página.
         };
 
         const toggleMaximizePanel = (id) => {
@@ -211,10 +189,7 @@ url="https://explorer.syklo.io/swap#is_sending=true&send_pms=USD:ALL:AT&receive_
         const loadState = () => {
             const savedState = localStorage.getItem(STORAGE_KEY);
             allPanels = savedState ? JSON.parse(savedState) : [];
-            
-            // ANOTACIÓN: Se ordena el array para que los paneles fijados (pinned) se creen primero.
             allPanels.sort((a, b) => (b.pinned || 0) - (a.pinned || 0));
-
             vesGrid.innerHTML = '';
             criptoGrid.innerHTML = '';
             allPanels.forEach(panelData => {
@@ -228,8 +203,20 @@ url="https://explorer.syklo.io/swap#is_sending=true&send_pms=USD:ALL:AT&receive_
         const initSortable = () => {
             [vesGrid, criptoGrid].forEach(gridEl => {
                 new Sortable(gridEl, {
-                    animation: 150, handle: '.panel-header', ghostClass: 'sortable-ghost',
+                    handle: '.panel-header',
+                    animation: 150,
+                    ghostClass: 'sortable-ghost',
+                    // ANOTACIÓN: Se añaden las nuevas opciones para el delay y el indicador visual.
+                    delay: 300, // Retardo de 300ms
+                    delayOnTouchOnly: true, // El retardo solo aplica en dispositivos táctiles
+                    onChoose: (evt) => {
+                        evt.item.classList.add('panel-primed'); // Añade la clase visual al presionar
+                    },
+                    onUnchoose: (evt) => {
+                        evt.item.classList.remove('panel-primed'); // Quita la clase visual al soltar
+                    },
                     onEnd: () => {
+                        document.querySelectorAll('.panel-primed').forEach(el => el.classList.remove('panel-primed'));
                         const orderedPanels = [];
                         vesGrid.querySelectorAll('.grid-panel').forEach(p => orderedPanels.push(allPanels.find(item => item.id === p.dataset.id)));
                         criptoGrid.querySelectorAll('.grid-panel').forEach(p => orderedPanels.push(allPanels.find(item => item.id === p.dataset.id)));
